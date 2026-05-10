@@ -1,0 +1,19 @@
+{
+  "name": "NegadeX Trading Simulator",
+  "short_name": "NegadeX",
+  "description": "DSA-powered real-time stock trading simulator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05060a",
+  "theme_color": "#0a0c14",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "education", "productivity"]
+}
