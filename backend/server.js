@@ -30,10 +30,12 @@ const proRoutes         = require('./routes/proRoutes');
 const aiRoutes          = require('./routes/aiRoutes');
 const portfolioHistory  = require('./services/portfolioHistory');
 const { sweepAdvancedOrders } = require('./services/proFeatures');
+const ensureAdmin       = require('./utils/ensureAdmin');
 
 async function bootstrap() {
   await connectDB();
   bootstrapStocks();
+  await ensureAdmin();
 
   const app = express();
 
@@ -44,8 +46,23 @@ async function bootstrap() {
   app.use(mongoSanitize());
   app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-  const origin = process.env.CLIENT_ORIGIN || true;
-  app.use(cors({ origin, credentials: true }));
+  const corsOrigin = (() => {
+    const raw = process.env.CLIENT_ORIGIN;
+    if (!raw || raw === 'true' || raw === '*') return true;
+    const list = raw.split(',').map(s => s.trim()).filter(Boolean);
+    if (list.length === 1) return list[0];
+    return (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (list.includes(origin)) return cb(null, true);
+      const ok = list.some((entry) => {
+        if (!entry.includes('*')) return false;
+        const pattern = new RegExp('^' + entry.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$');
+        return pattern.test(origin);
+      });
+      return cb(ok ? null : new Error('CORS: origin not allowed'), ok);
+    };
+  })();
+  app.use(cors({ origin: corsOrigin, credentials: true }));
 
   // Per-IP rate limiter for the API surface
   const apiLimiter = rateLimit({
@@ -116,10 +133,10 @@ async function bootstrap() {
 
   const PORT = process.env.PORT || 5000;
   server.listen(PORT, () => {
-    console.log(`\n🚀  Stock Trading Simulator API listening on http://localhost:${PORT}`);
-    console.log(`   • REST  → /api/*`);
-    console.log(`   • WS    → ws://localhost:${PORT}`);
-    console.log(`   • Tick  → every ${tickMs}ms`);
+    const isProd = process.env.NODE_ENV === 'production';
+    const where = isProd ? `port ${PORT}` : `http://localhost:${PORT}`;
+    console.log(`\n[api] NegadeX listening on ${where}`);
+    console.log(`[api] env=${process.env.NODE_ENV || 'development'} tick=${tickMs}ms`);
   });
 
   process.on('SIGINT',  () => { simulator.stop(); bot.stop(); alerts.stop(); portfolioHistory.stop(); process.exit(0); });
