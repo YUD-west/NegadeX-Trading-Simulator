@@ -1,10 +1,36 @@
-# NegadeX — DSA-Powered Stock Trading Simulator
+<h1 align="center">NegadeX — DSA-Powered Ethiopian Stock Trading Simulator</h1>
+
+<p align="center">
+  <a href="https://negadex.vercel.app"><img src="https://img.shields.io/badge/Live%20demo-negadex.vercel.app-22d3ee?style=for-the-badge&logo=vercel&logoColor=white" alt="Live demo"></a>
+  <a href="https://negadex-trading-simulator.onrender.com/api/health"><img src="https://img.shields.io/badge/API-live-22c55e?style=for-the-badge&logo=render&logoColor=white" alt="API status"></a>
+  <a href="https://github.com/YUD-west/NegadeX-Trading-Simulator"><img src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Source"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=white" alt="React 18">
+  <img src="https://img.shields.io/badge/Vite-5-646cff?logo=vite&logoColor=white" alt="Vite 5">
+  <img src="https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white" alt="Node 18+">
+  <img src="https://img.shields.io/badge/Express-4-000000?logo=express&logoColor=white" alt="Express 4">
+  <img src="https://img.shields.io/badge/Socket.IO-4-010101?logo=socket.io&logoColor=white" alt="Socket.IO 4">
+  <img src="https://img.shields.io/badge/MongoDB-8-47A248?logo=mongodb&logoColor=white" alt="MongoDB 8">
+  <img src="https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind 3">
+  <img src="https://img.shields.io/badge/license-MIT-94a3b8" alt="MIT license">
+</p>
+
+<p align="center"><b>🌐 Live: <a href="https://negadex.vercel.app">https://negadex.vercel.app</a></b></p>
 
 A production-grade, full-stack stock trading simulator built around real **data structures and algorithms** — not just CRUD. NegadeX models the **Ethiopian market** end-to-end: 32 major Ethiopian listings (Commercial Bank of Ethiopia, Ethiopian Airlines, Ethio Telecom, Tele-Birr, Safaricom Ethiopia, Awash Bank, Bank of Abyssinia, Oromia Bank, Siinqee Bank, Dashen Bank, Ethiopian Insurance Corp., GERD Hydropower, BGI/Habesha breweries, MIDROC, Yirgacheffe Coffee Union and more) priced in **Ethiopian Birr (ETB)**, a heap-based order matching engine, a random-walk market simulator with NBE-flavoured macro events, hash-map portfolios with stack/queue trade history, binary-search price lookups, JWT auth, an admin console, and a polished glassmorphism UI streaming over WebSockets.
 
 > Frontend: **React + Vite + Tailwind + TradingView Lightweight Charts + Framer Motion + Zustand**
 > Backend: **Node.js + Express + MongoDB + Mongoose + Socket.IO + JWT**
-> Deploy: **Vercel (frontend)** + **Railway (backend)**
+> Deploy: **Vercel** (frontend) + **Render** (backend) — auto-deploy on push to `main`
+
+### Try it now
+- **App:** https://negadex.vercel.app
+- **Demo account:** register any email, you start with **1,000,000 Br** of virtual capital
+- **Markets:** the simulator is ticking 24/7 — open Dashboard or Market to see live prices
+
+> ⏳ First load can take 30–60 s if the free-tier backend is asleep (Render cold-start). After that everything is instant.
 
 ---
 
@@ -46,16 +72,15 @@ A production-grade, full-stack stock trading simulator built around real **data 
 
 ## Screenshots
 
-> Replace these placeholders after running the app locally and capturing screenshots into `docs/screenshots/`.
-
-| Page | Preview |
-|---|---|
-| Landing      | `docs/screenshots/landing.png`     |
-| Dashboard    | `docs/screenshots/dashboard.png`   |
-| Trade        | `docs/screenshots/trade.png`       |
-| Portfolio    | `docs/screenshots/portfolio.png`   |
-| Leaderboard  | `docs/screenshots/leaderboard.png` |
-| Admin        | `docs/screenshots/admin.png`       |
+<p align="center">
+  <img src="docs/screenshots/landing.png"    alt="NegadeX landing page"        width="100%">
+  <br><br>
+  <img src="docs/screenshots/dashboard.png"  alt="Dashboard with live tickers" width="100%">
+  <br><br>
+  <img src="docs/screenshots/trade.png"      alt="Trade page with chart"       width="100%">
+  <br><br>
+  <img src="docs/screenshots/admin.png"      alt="Admin console"               width="100%">
+</p>
 
 ---
 
@@ -416,43 +441,70 @@ Connect to `ws://<host>` with optional `auth.token` header.
 
 ## Deployment
 
-### Backend → Railway / Render / Fly.io
+NegadeX is currently deployed on **Vercel** (frontend) and **Render** (backend).
+The blueprint below works with any long-running Node host (Render, Railway,
+Fly.io). Avoid serverless hosts for the backend — Socket.IO needs a persistent
+connection.
+
+### Backend → Render (or Railway / Fly.io)
 
 1. Push the repo to GitHub.
-2. Create a new web service from the repo with **Root Directory** = `backend`.
-3. Build command: `npm install`   Start command: `node server.js`
-4. Add the following environment variables (copy `backend/.env.example` first):
-   - `NODE_ENV=production`
-   - `JWT_SECRET=<32+ random chars — generate with `openssl rand -hex 32`>`
-   - `MONGO_URI=<your MongoDB Atlas connection string>` (or leave empty for in-memory)
-   - `CLIENT_ORIGIN=https://<your-vercel-app>.vercel.app`
-   - `STARTING_BALANCE=1000000`
-   - `SIM_TICK_MS=2500`
+2. **New → Web Service** → connect the repo.
+3. Settings:
+   - **Root Directory:** `backend`
+   - **Build Command:** `npm ci --omit=dev`
+   - **Start Command:** `npm start`
+   - **Runtime:** Node 18+
+4. Add the following environment variables (use the **Add from .env** bulk
+   paste option if available):
+   ```env
+   NODE_ENV=production
+   JWT_SECRET=<32+ random chars — `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`>
+   MONGO_URI=<your MongoDB Atlas connection string, or leave blank for in-memory>
+   CLIENT_ORIGIN=https://<your-vercel-app>.vercel.app,https://*.vercel.app
+   STARTING_BALANCE=1000000
+   SIM_TICK_MS=2500
+   ADMIN_EMAIL=<your email>
+   ADMIN_PASSWORD=<strong password — used on first boot>
+   ADMIN_NAME=<your name>
+   ```
 5. Deploy and note the public HTTPS URL — you'll use it as `VITE_API_URL`.
 
-> WebSockets: NegadeX uses Socket.IO. Railway, Render and Fly.io all support
-> WebSockets out of the box. On serverless platforms (Vercel, Cloudflare Workers)
-> you'll lose live ticks — keep the API on a long-running container host.
+> `CLIENT_ORIGIN` supports a comma-separated list and wildcard patterns
+> (e.g. `https://*.vercel.app`) so Vercel preview deploys work without
+> redeploying the backend.
 
 ### Frontend → Vercel
 
 1. **New Project** → import the repo.
-2. Set the **Root Directory** to `frontend`.
-3. Framework preset: **Vite**.   Build: `npm run build`   Output: `dist`.
-4. Add env var `VITE_API_URL=https://<your-backend-host>` (no trailing slash).
-5. Deploy.
-6. **Important:** add the resulting Vercel URL to the backend's `CLIENT_ORIGIN`
-   env var, then redeploy the backend so CORS accepts the new origin.
+2. **Root Directory:** `frontend`. Framework preset: **Vite**.
+3. Environment variable (one only):
+   ```env
+   VITE_API_URL=https://<your-backend-host>     # no trailing slash
+   ```
+   Apply to Production, Preview, and Development.
+4. Click **Deploy**. Vercel auto-detects the build (`npm run build`) and output
+   (`dist`).
+5. Once the frontend is live, tighten the backend's `CLIENT_ORIGIN` to your
+   exact Vercel domain (and any preview wildcard) so CORS is locked down.
 
 ### Pre-deploy checklist
 
-- [ ] `JWT_SECRET` replaced with a strong random value
-- [ ] `CLIENT_ORIGIN` pinned to your real frontend URL (not `*`)
+- [x] `JWT_SECRET` replaced with a strong random value
+- [x] `CLIENT_ORIGIN` pinned to your real frontend URL (wildcard pattern OK)
 - [ ] `MONGO_URI` set if you want persistence between restarts
-- [ ] `STARTING_BALANCE` confirmed in Birr
-- [ ] Frontend `VITE_API_URL` points at the production backend
-- [ ] `npm run build` in `frontend/` produces `dist/` without warnings
-- [ ] `node --test tests/*.test.js` in `backend/` passes
+- [x] `STARTING_BALANCE` confirmed in Birr (1,000,000)
+- [x] Frontend `VITE_API_URL` points at the production backend
+- [x] `npm run build` in `frontend/` produces `dist/` without warnings
+- [x] `node --test tests/*.test.js` in `backend/` passes (8/8)
+
+### Free-tier behavior (Render)
+
+- **Cold start:** the backend sleeps after 15 min of no traffic. First request
+  takes 30–60 s to wake; subsequent requests are sub-100 ms.
+- **No persistence by default:** in-memory mode resets users and trades on every
+  restart. Add `MONGO_URI` (free MongoDB Atlas M0 cluster) to fix this without
+  any code change.
 
 ---
 
